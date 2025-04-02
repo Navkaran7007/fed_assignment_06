@@ -11,6 +11,32 @@ document.addEventListener("DOMContentLoaded", function () {
 	fetchQuestions();
 	displayScores();
 
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
+function getCookie(name) {
+	return document.cookie
+		.split("; ")
+		.find((row) => row.startsWith(`${name}=`))
+		?.split("=")[1];
+}
+
+function checkUserSession() {
+    const username = getCookie("username");
+    console.log(username ? `User session exists. Username: ${username}` : "No user session found.");
+}
+    // Initialize the game
+    checkUserSession();
+    fetchQuestions();
+    displayScores();
+
 	/**
 	 * Fetches trivia questions from the API and displays them.
 	 */
