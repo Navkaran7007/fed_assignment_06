@@ -7,35 +7,50 @@ document.addEventListener("DOMContentLoaded", function () {
 	const newPlayerButton = document.getElementById("new-player");
 
 	// Initialize the game
-	// checkUsername(); Uncomment once completed
 	fetchQuestions();
 	displayScores();
+	checkUsername();
 
-function setCookie(name, value, days) {
-    let expires = "";
-    if (days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + value + expires + "; path=/";
-}
+function setCookie(name, value, exdays) {
+	const d = new Date();
+	d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+	const expires = "expires=" + d.toUTCString();
+	document.cookie = name + "=" + value + ";" + expires + ";path=/";
+	}
 
 function getCookie(name) {
-	return document.cookie
-		.split("; ")
-		.find((row) => row.startsWith(`${name}=`))
-		?.split("=")[1];
-}
+        let cname = name + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(cname) == 0) {
+                return c.substring(cname.length, c.length);
+            }
+        }
+        return "";
+    }
 
-function checkUserSession() {
+function checkUsername() {
     const username = getCookie("username");
-    console.log(username ? `User session exists. Username: ${username}` : "No user session found.");
+    const usernameInput = document.getElementById("username");
+    const form = document.getElementById("trivia-form");
+    const questionContainer = document.getElementById("question-container");
+    const newPlayerButton = document.getElementById("new-player");
+
+    if (username) {
+        usernameInput.classList.add("hidden"); 
+        questionContainer.classList.remove("hidden"); 
+        newPlayerButton.classList.remove("hidden"); 
+    } else {
+        usernameInput.classList.remove("hidden"); 
+        questionContainer.classList.add("hidden"); 
+        newPlayerButton.classList.add("hidden");
+    }
 }
-    // Initialize the game
-    checkUserSession();
-    fetchQuestions();
-    displayScores();
 
 	/**
 	 * Fetches trivia questions from the API and displays them.
@@ -128,6 +143,11 @@ function checkUserSession() {
 	 */
 	function handleFormSubmit(event) {
 		event.preventDefault();
+		const username = document.getElementById("username").value;
+    
+		setCookie("username", username, 100);
+		checkUsername(); 
+		fetchQuestions();
 		//... form submission logic including setting cookies and calculating score
 	}
 });
