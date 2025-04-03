@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// Initialize the game
 	fetchQuestions();
-	displayScores();
+	//displayScores();
 	checkUsername();
 
 function setCookie(name, value, exdays) {
@@ -37,7 +37,6 @@ function getCookie(name) {
 function checkUsername() {
     const username = getCookie("username");
     const usernameInput = document.getElementById("username");
-    const form = document.getElementById("trivia-form");
     const questionContainer = document.getElementById("question-container");
     const newPlayerButton = document.getElementById("new-player");
 
@@ -133,6 +132,27 @@ function checkUsername() {
 			.join("");
 	}
 
+	function calculateScore() {
+		let score = 0;
+	
+		const selectedAnswers = document.querySelectorAll("input[type='radio']:checked");
+	
+		selectedAnswers.forEach((input) => {
+			if (input.dataset.correct === "true") {
+				score++;
+			}
+		});
+	
+		return score;
+	}
+
+	function newPlayer() {
+		setCookie("username", "", -1); 
+		checkUsername();  
+		document.getElementById("score-display").textContent = ""; 
+	}
+
+
 	// Event listeners for form submission and new player button
 	form.addEventListener("submit", handleFormSubmit);
 	newPlayerButton.addEventListener("click", newPlayer);
@@ -142,17 +162,25 @@ function checkUsername() {
 	 * @param {Event} event - The submit event.
 	 */
 	function handleFormSubmit(event) {
-        event.preventDefault();
-        const usernameInput = document.getElementById("username");
-        const username = usernameInput.value.trim();
+		event.preventDefault();
+		const usernameInput = document.getElementById("username");
+		const username = usernameInput.value.trim();
 
-        setCookie("username", username, 100);
-        checkUsername();
-        
-        // Placeholder for score calculation       
-        // Placeholder for score saving
-        fetchQuestions();  
-        // Clear input field
-        usernameInput.value = "";
-    }
+		if (username) {
+			setCookie("username", username, 100);
+		}
+
+		checkUsername();
+
+		const score = calculateScore();
+		console.log(`Score for ${username || getCookie("username")}: ${score}`);
+
+		const scoreDisplay = document.getElementById("score-display");
+		if (scoreDisplay) {
+			scoreDisplay.textContent = `Your score: ${score}/10`;
+		}
+
+		fetchQuestions();
+		usernameInput.value = "";
+	}
 });
