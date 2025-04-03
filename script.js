@@ -34,22 +34,21 @@ function getCookie(name) {
         return "";
     }
 
-function checkUsername() {
-    const username = getCookie("username");
-    const usernameInput = document.getElementById("username");
-    const questionContainer = document.getElementById("question-container");
-    const newPlayerButton = document.getElementById("new-player");
-
-    if (username) {
-        usernameInput.classList.add("hidden"); 
-        questionContainer.classList.remove("hidden"); 
-        newPlayerButton.classList.remove("hidden"); 
-    } else {
-        usernameInput.classList.remove("hidden"); 
-        questionContainer.classList.add("hidden"); 
-        newPlayerButton.classList.add("hidden");
-    }
-}
+	function checkUsername() {
+		const username = getCookie("username");
+		const usernameInput = document.getElementById("username");
+		const questionContainer = document.getElementById("question-container");
+		const newPlayerButton = document.getElementById("new-player");
+	
+		if (username) {
+			questionContainer.classList.remove("hidden");
+			newPlayerButton.classList.remove("hidden");
+		} else {
+			usernameInput.classList.remove("hidden");
+			questionContainer.classList.add("hidden");
+			newPlayerButton.classList.add("hidden");
+		}
+	}
 
 	/**
 	 * Fetches trivia questions from the API and displays them.
@@ -152,7 +151,25 @@ function checkUsername() {
 		document.getElementById("score-display").textContent = ""; 
 	}
 
+	function saveScore(user, score) {
+		let scores = JSON.parse(localStorage.getItem("triviaScores")) || {};
+		scores[user] = score; 
+		localStorage.setItem("triviaScores", JSON.stringify(scores));
+	}
 
+	function displayScores() {
+		const scores = JSON.parse(localStorage.getItem("triviaScores")) || {};
+		const scoreBoard = document.querySelector("#score-table tbody");
+		scoreBoard.innerHTML = "";
+	
+		for (let user in scores) {
+			const row = scoreBoard.insertRow();
+			row.insertCell(0).textContent = user;
+			row.insertCell(1).textContent = `${scores[user]}`; 
+		}
+	}
+	
+	
 	// Event listeners for form submission and new player button
 	form.addEventListener("submit", handleFormSubmit);
 	newPlayerButton.addEventListener("click", newPlayer);
@@ -163,24 +180,22 @@ function checkUsername() {
 	 */
 	function handleFormSubmit(event) {
 		event.preventDefault();
-		const usernameInput = document.getElementById("username");
-		const username = usernameInput.value.trim();
-
-		if (username) {
-			setCookie("username", username, 100);
+	
+		let usernameInput = document.getElementById("username"); 
+		let user = usernameInput.value.trim();
+	
+		if (!user) {
+			alert("Please enter your name!");
+			return;
 		}
-
-		checkUsername();
-
-		const score = calculateScore();
-		console.log(`Score for ${username || getCookie("username")}: ${score}`);
-
-		const scoreDisplay = document.getElementById("score-display");
-		if (scoreDisplay) {
-			scoreDisplay.textContent = `Your score: ${score}/10`;
-		}
-
-		fetchQuestions();
-		usernameInput.value = "";
-	}
-});
+		let answers = [];
+		document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+			answers.push(input.value);
+		});
+	
+		let score = calculateScore(answers);
+	
+		saveScore(user, score);
+		displayScores();
+		loadNewQuestion();
+	}})
