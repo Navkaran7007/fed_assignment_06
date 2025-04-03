@@ -142,12 +142,17 @@ function checkUsername() {
 	 * @param {Event} event - The submit event.
 	 */
 	function handleFormSubmit(event) {
-		event.preventDefault();
-		const username = document.getElementById("username").value;
-    
-		setCookie("username", username, 100);
-		checkUsername(); 
-		fetchQuestions();
-		//... form submission logic including setting cookies and calculating score
-	}
+        event.preventDefault();
+        const usernameInput = document.getElementById("username");
+        const username = usernameInput.value.trim();
+
+        setCookie("username", username, 100);
+        checkUsername();
+        
+        // Placeholder for score calculation       
+        // Placeholder for score saving
+        fetchQuestions();  
+        // Clear input field
+        usernameInput.value = "";
+    }
 });
